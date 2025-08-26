@@ -1,21 +1,21 @@
 [package]
 name = "bacnet"
 version = "0.1.0"
-authors = ["Pascal Bach <pascal.bach@nextrem.ch>"]
-edition = "2018"
+authors = ["Pascal Bach <pascal.bach@nextrem.ch>", "André Azevedo <andre.azev@gmail.com"]
+edition = "2024"
 license = "MIT/Apache-2.0"
 repository = "https://github.com/bachp/bacnet-rs"
 description = "A BACnet stack written in Rust."
 
 [dependencies]
-num-derive = "0.3"
+num-derive = "0.4"
 num-traits = "0.2"
-async-std = "1.8"
+async-std = "1.13"
 tracing = "0.1"
 tracing-subscriber = "0.3"
-byteorder = "1.4"
-bytes = "1.0"
-picky-asn1-der = "0.4"
+byteorder = "1.5"
+bytes = "1.8"
+picky-asn1-der = "0.5"
 serde = { version = "1.0", features = [ "derive" ] }
 nom = "7"
 hex ="0.4"
