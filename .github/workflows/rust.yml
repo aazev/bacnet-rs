@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
 
       - name: Setup rust toolchain
         uses: actions-rs/toolchain@v1
@@ -27,6 +27,21 @@ jobs:
           toolchain: ${{ matrix.rust }}
           override: true
           components: rustfmt, clippy
+
+      - name: Cache Rust dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo
+            ~/.cargo/bin
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git/db
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - uses: chetan/git-restore-mtime-action@v1
+        if: ${{ inputs.restore_mtime }}
 
       - name: Run cargo test
         uses: actions-rs/cargo@v1
