@@ -1,7 +1,6 @@
 mod parse;
 
-use nom::IResult;
-
+#[allow(dead_code)]
 pub struct Tag<'a> {
     tag_number: TagNumber,
     lvt: LengthValueType,
@@ -58,9 +57,9 @@ impl From<u8> for ApplicationTag {
     }
 }
 
-impl Into<u8> for ApplicationTag {
-    fn into(self) -> u8 {
-        match self {
+impl From<ApplicationTag> for u8 {
+    fn from(val: ApplicationTag) -> Self {
+        match val {
             ApplicationTag::Null => 0,
             ApplicationTag::Boolean => 1,
             ApplicationTag::UnsignedInteger => 2,
@@ -86,15 +85,14 @@ pub enum ContextTag {
 
 impl From<u8> for ContextTag {
     fn from(tag_number: u8) -> Self {
-        match tag_number {
-            t => ContextTag::Other(t),
-        }
+        let t = tag_number;
+        ContextTag::Other(t)
     }
 }
 
-impl Into<u8> for ContextTag {
-    fn into(self) -> u8 {
-        match self {
+impl From<ContextTag> for u8 {
+    fn from(val: ContextTag) -> Self {
+        match val {
             ContextTag::Other(t) => t,
         }
     }

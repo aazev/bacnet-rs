@@ -1,5 +1,5 @@
 use crate::{Decode, Encode};
-use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
+use byteorder::ReadBytesExt;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Service {}
@@ -28,7 +28,7 @@ impl Decode for UnconfirmedService {
         match type_ {
             0x00 => Ok(Self::IAm(IAm::decode(reader)?)),
             0x08 => Ok(Self::WhoIs()),
-            t => unimplemented!(),
+            _t => unimplemented!(),
         }
     }
 }
@@ -63,7 +63,7 @@ impl Decode for IAm {
 impl Encode for IAm {
     fn encode<T: std::io::Write + Sized>(&self, writer: &mut T) -> std::io::Result<()> {
         let data = vec![196, 2, 0, 2, 87, 34, 4, 0, 145, 0, 33, 15];
-        writer.write(&data)?;
+        writer.write_all(&data)?;
         Ok(())
     }
 

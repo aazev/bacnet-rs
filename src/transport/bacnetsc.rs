@@ -1,7 +1,4 @@
-/// Implements BACnet/SC (Annex YY)
-use crate::network::*;
-use crate::{Decode, Encode};
+//! Implements BACnet/SC (Annex YY)
 
-use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
-
+#[allow(dead_code)]
 const BACNETSC: u8 = 0x81;

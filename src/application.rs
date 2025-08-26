@@ -1,6 +1,6 @@
 use crate::{Decode, Encode};
 
-use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
+use byteorder::{ReadBytesExt, WriteBytesExt};
 
 pub mod service;
 pub use service::*;
@@ -34,6 +34,7 @@ pub enum BACnetPDU {
     Abort,              // = 0x07;
 }
 
+#[allow(dead_code)]
 impl BACnetPDU {
     fn as_u8(&self) -> u8 {
         match self {
@@ -74,7 +75,7 @@ impl Encode for APDU {
     fn encode<T: std::io::Write + Sized>(&self, writer: &mut T) -> std::io::Result<()> {
         writer.write_u8(self.apdu_type << 4)?;
         writer.write_u8(self.service_choice)?;
-        writer.write(&self.user_data)?;
+        writer.write_all(&self.user_data)?;
         Ok(())
     }
 
@@ -104,8 +105,6 @@ mod tests {
     use crate::{Decode, Encode};
     use bytes::{BufMut, BytesMut};
     use hex;
-
-    use crate::tests::*;
 
     #[test]
     fn test_encode_apdu() {

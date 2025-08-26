@@ -2,11 +2,10 @@ use crate::application::*;
 use crate::{Decode, Encode};
 
 use num_derive::{FromPrimitive, ToPrimitive};
-use num_traits::{FromPrimitive, ToPrimitive};
+use num_traits::FromPrimitive;
 use std::convert::TryFrom;
 
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
-use bytes::BufMut;
 
 use tracing::trace;
 
@@ -19,13 +18,13 @@ pub enum NPDUPriority {
     Normal = 0b00,
 }
 
-impl Into<u8> for NPDUPriority {
-    fn into(self) -> u8 {
-        match self {
-            Self::LifeSafety => 0b11,
-            Self::CriticalEquipment => 0b10,
-            Self::Urgent => 0b01,
-            Self::Normal => 0b00,
+impl From<NPDUPriority> for u8 {
+    fn from(val: NPDUPriority) -> Self {
+        match val {
+            NPDUPriority::LifeSafety => 0b11,
+            NPDUPriority::CriticalEquipment => 0b10,
+            NPDUPriority::Urgent => 0b01,
+            NPDUPriority::Normal => 0b00,
         }
     }
 }
@@ -69,20 +68,85 @@ impl TryFrom<u8> for NPDUMessage {
     fn try_from(v: u8) -> Result<Self, Self::Error> {
         match v {
             0x00 => Ok(Self::WhoIsRouterToNetwork),
-            // TODO: Implement rest
-            v if (v >= 0x80 && v <= 0xFF) => Ok(Self::Proprietary(v)),
-            v => Err(format!("Unknown Message type: {}", v)),
+            0x01 => Ok(Self::IAmRouterToNetwork),
+            0x02 => Ok(Self::ICouldBeRouterToNetwork),
+            0x03 => Ok(Self::RejectMessageToNetwork),
+            0x04 => Ok(Self::RouterBusyToNetwork),
+            0x05 => Ok(Self::RouterAvailableToNetwork),
+            0x06 => Ok(Self::InitializeRoutingTable),
+            0x07 => Ok(Self::InitializeRoutingTableAck),
+            0x08 => Ok(Self::EstablishConnectionToNetwork),
+            0x09 => Ok(Self::DisconnectConnectionToNetwork),
+            0x0A => Ok(Self::ChallengeRequest),
+            0x0B => Ok(Self::SecurityPayload),
+            0x0C => Ok(Self::SecurityResponse),
+            0x0D => Ok(Self::RequestKeyUpdate),
+            0x0E => Ok(Self::UpdateKeySet),
+            0x0F => Ok(Self::UpdateDistributionKey),
+            0x10 => Ok(Self::RequestMasterKey),
+            0x11 => Ok(Self::SetMasterKey),
+            0x12 => Ok(Self::WhatIsNetworkNumber),
+            0x13 => Ok(Self::NetworkNumberIs),
+            0x14..=0x7F => Ok(Self::Reserved(v)),
+            0x80..=0xFF => Ok(Self::Proprietary(v)),
         }
     }
 }
 
 impl Encode for NPDUMessage {
     fn encode<T: std::io::Write + Sized>(&self, writer: &mut T) -> std::io::Result<()> {
-        unimplemented!();
+        let _: () = match self {
+            Self::WhoIsRouterToNetwork => writer.write_u8(0x00)?,
+            Self::IAmRouterToNetwork => writer.write_u8(0x01)?,
+            Self::ICouldBeRouterToNetwork => writer.write_u8(0x02)?,
+            Self::RejectMessageToNetwork => writer.write_u8(0x03)?,
+            Self::RouterBusyToNetwork => writer.write_u8(0x04)?,
+            Self::RouterAvailableToNetwork => writer.write_u8(0x05)?,
+            Self::InitializeRoutingTable => writer.write_u8(0x06)?,
+            Self::InitializeRoutingTableAck => writer.write_u8(0x07)?,
+            Self::EstablishConnectionToNetwork => writer.write_u8(0x08)?,
+            Self::DisconnectConnectionToNetwork => writer.write_u8(0x09)?,
+            Self::ChallengeRequest => writer.write_u8(0x0A)?,
+            Self::SecurityPayload => writer.write_u8(0x0B)?,
+            Self::SecurityResponse => writer.write_u8(0x0C)?,
+            Self::RequestKeyUpdate => writer.write_u8(0x0D)?,
+            Self::UpdateKeySet => writer.write_u8(0x0E)?,
+            Self::UpdateDistributionKey => writer.write_u8(0x0F)?,
+            Self::RequestMasterKey => writer.write_u8(0x10)?,
+            Self::SetMasterKey => writer.write_u8(0x11)?,
+            Self::WhatIsNetworkNumber => writer.write_u8(0x12)?,
+            Self::NetworkNumberIs => writer.write_u8(0x13)?,
+            Self::Reserved(v) => writer.write_u8(*v)?,
+            Self::Proprietary(v) => writer.write_u8(*v)?,
+        };
+        Ok(())
     }
 
     fn len(&self) -> usize {
-        unimplemented!();
+        match self {
+            Self::WhoIsRouterToNetwork => 2,
+            Self::IAmRouterToNetwork => 2,
+            Self::ICouldBeRouterToNetwork => 2,
+            Self::RejectMessageToNetwork => 2,
+            Self::RouterBusyToNetwork => 2,
+            Self::RouterAvailableToNetwork => 2,
+            Self::InitializeRoutingTable => 2,
+            Self::InitializeRoutingTableAck => 2,
+            Self::EstablishConnectionToNetwork => 2,
+            Self::DisconnectConnectionToNetwork => 2,
+            Self::ChallengeRequest => 2,
+            Self::SecurityPayload => 2,
+            Self::SecurityResponse => 2,
+            Self::RequestKeyUpdate => 2,
+            Self::UpdateKeySet => 2,
+            Self::UpdateDistributionKey => 2,
+            Self::RequestMasterKey => 2,
+            Self::SetMasterKey => 2,
+            Self::WhatIsNetworkNumber => 2,
+            Self::NetworkNumberIs => 2,
+            Self::Reserved(_) => 2,
+            Self::Proprietary(_) => 2,
+        }
     }
 }
 
@@ -132,10 +196,11 @@ impl<A: Encode, B: Encode> From<A> for NPDUContent<A, B> {
 
 impl<A: Encode, B: Encode> Encode for NPDUContent<A, B> {
     fn encode<T: std::io::Write + Sized>(&self, writer: &mut T) -> std::io::Result<()> {
-        Ok(match self {
+        let _: () = match self {
             Self::APDU(apdu) => apdu.encode(writer)?,
             Self::Message(msg) => msg.encode(writer)?,
-        })
+        };
+        Ok(())
     }
 
     fn len(&self) -> usize {
@@ -197,12 +262,12 @@ impl<A: Encode, B: Encode> Encode for NPDU<A, B> {
         if let Some(ref d) = self.destination {
             writer.write_u16::<BigEndian>(d.net)?;
             writer.write_u8(d.adr.len() as u8)?;
-            writer.write(&d.adr)?;
+            writer.write_all(&d.adr)?;
         }
         if let Some(ref s) = self.source {
             writer.write_u16::<BigEndian>(s.net)?;
             writer.write_u8(s.adr.len() as u8)?;
-            writer.write(&s.adr)?;
+            writer.write_all(&s.adr)?;
         }
         if let Some(ref d) = self.destination {
             writer.write_u8(d.hops)?;
@@ -221,13 +286,13 @@ impl<A: Encode, B: Encode> Encode for NPDU<A, B> {
         l += self
             .destination
             .as_ref()
-            .and_then(|d| Some(2 + 1 + d.adr.len() + 1))
-            .unwrap_or(0) as usize; // DNET(2) + DLEN(1) + DADR(*) + HOPS(1)
+            .map(|d| 2 + 1 + d.adr.len() + 1)
+            .unwrap_or(0); // DNET(2) + DLEN(1) + DADR(*) + HOPS(1)
         l += self
             .source
             .as_ref()
-            .and_then(|s| Some(2 + 1 + s.adr.len()))
-            .unwrap_or(0) as usize; // SNET(2) + SLEN(1) + SADR(*)
+            .map(|s| 2 + 1 + s.adr.len())
+            .unwrap_or(0); // SNET(2) + SLEN(1) + SADR(*)
         l += self.content.len();
         l
     }
@@ -265,7 +330,7 @@ impl Decode for NPDU {
         } else {
             None
         };
-        println!("{:?}", destination);
+        //println!("{:?}", destination);
         if let Some(dest) = &mut destination {
             dest.hops = reader.read_u8()?;
         };
@@ -293,7 +358,7 @@ impl Decode for NPDU {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{Decode, Encode};
+    use crate::Encode;
     use bytes::{BufMut, BytesMut};
 
     use crate::tests::*;
@@ -322,7 +387,9 @@ mod tests {
         npdu.encode(&mut w).expect("Write NPDU to buffer");
         assert_eq!(
             w.into_inner().to_vec(),
-            vec![1, 32, 1, 38, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255]
+            vec![
+                1, 32, 1, 38, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255
+            ]
         );
     }
 
@@ -339,7 +406,9 @@ mod tests {
         npdu.encode(&mut w).expect("Write NPDU to buffer");
         assert_eq!(
             w.into_inner().to_vec(),
-            vec![1, 8, 1, 38, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            vec![
+                1, 8, 1, 38, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            ]
         );
     }
 

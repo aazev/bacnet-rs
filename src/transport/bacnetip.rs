@@ -3,7 +3,6 @@ use crate::network::*;
 use crate::{Decode, Encode};
 
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
-use bytes::BufMut;
 
 const BACNETIP: u8 = 0x81;
 
@@ -53,7 +52,7 @@ impl<F> BVLC<F> {
     pub fn new(function: F) -> Self {
         Self {
             bvlc_type: BACNETIP, // BACnet/IP (Annex J)
-            function: function,
+            function,
         }
     }
 
@@ -91,7 +90,7 @@ impl Decode for BVLC {
             ));
         }
         let function = reader.read_u8()?;
-        let lenght = reader.read_u16::<BigEndian>()?; // TODO: Check lenght
+        let _lenght = reader.read_u16::<BigEndian>()?; // TODO: Check lenght
         let function = match function {
             0x0b => {
                 let npdu = NPDU::decode(reader)?;

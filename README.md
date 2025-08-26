@@ -1,3 +1,4 @@
+[![BACnet Rust](https://github.com/aazev/bacnet-rs/actions/workflows/rust.yml/badge.svg)](https://github.com/aazev/bacnet-rs/actions/workflows/rust.yml)
 # Rust BACnet stack
 
 > **This is currently in a very early development phase. It's intended to work as a walking skeleton and evolve in a complete BACnet implementation**
